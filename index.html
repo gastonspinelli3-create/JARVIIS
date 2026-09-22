@@ -20,6 +20,11 @@ body{background:#000;color:#cbd5e1;font-family:ui-monospace,monospace;overflow-x
 .pulse{animation:pulse 1.5s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 </style>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#06b6d4">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/4712/4712027.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="JARVIS">
 </head>
 <body>
 <div style="max-width:1100px;margin:0 auto;padding:16px">
@@ -252,6 +257,8 @@ document.addEventListener('click',()=>{ if(synth) loadVoices(); },{once:true});
 
 // Auto-intento de voz al cargar (requiere gesto previo)
 log('INIT','JARVIS PRIME MK II • VOZ HOMBRE • ESPERANDO ACTIVACIÓN, SEÑOR');
+
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('/sw.js').then(()=>{console.log('SW JARVIS registrado senor')}).catch(()=>{}); }
 </script>
 </body>
 </html>
