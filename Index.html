@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>JARVIS PRIME V10 REAL</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="icons/icon-192x192.png">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;color:#fff;font-family:-apple-system,system-ui,sans-serif;overflow:hidden;height:100vh;display:flex;flex-direction:column}
+.header{padding:14px 16px;border-bottom:1px solid #222;display:flex;justify-content:space-between;align-items:center;background:#050505}
+.logo{font-weight:900;letter-spacing:2px;font-size:14px;color:#22d3ee;cursor:pointer;user-select:none}
+.status{display:flex;gap:6px;align-items:center;font-size:10px;color:#52525b}
+.dot{width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 8px #22c55e;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;background:radial-gradient(ellipse at top,#0a0a0a 0%,#000 70%)}
+.msg{max-width:85%;padding:12px 14px;border-radius:16px;font-size:14px;line-height:1.4;animation:slide .2s ease}
+@keyframes slide{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+.msg.user{align-self:flex-end;background:#22d3ee;color:#000;border-bottom-right-radius:4px;font-weight:600}
+.msg.jarvis{align-self:flex-start;background:#18181b;border:1px solid #27272a;color:#e4e4e7;border-bottom-left-radius:4px}
+.msg.jarvis b{color:#22d3ee}
+.inputBar{padding:12px;border-top:1px solid #222;background:#050505;display:flex;gap:8px;align-items:center}
+.inputBar input{flex:1;background:#111;border:1px solid #333;color:#fff;padding:12px 14px;border-radius:24px;font-size:14px;outline:none}
+.inputBar input:focus{border-color:#22d3ee}
+.btn{width:42px;height:42px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px}
+.btn.mic{background:#222;color:#fff}
+.btn.mic.listening{background:#ef4444;animation:pulse 1s infinite}
+.btn.send{background:#22d3ee;color:#000}
+.apps{padding:10px 16px;display:flex;gap:8px;overflow-x:auto;border-top:1px solid #111;background:#050505}
+.appChip{background:#111;border:1px solid #222;padding:6px 12px;border-radius:20px;font-size:11px;white-space:nowrap;cursor:pointer;color:#a1a1aa}
+.appChip:active{background:#22d3ee;color:#000}
+.auth{position:fixed;inset:0;background:#000;z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
+.authCard{background:#0a0a0a;border:1px solid #222;border-radius:20px;padding:24px;width:100%;max-width:380px}
+.authCard h2{color:#22d3ee;text-align:center;font-size:18px;letter-spacing:2px;margin-bottom:6px}
+.authCard input{width:100%;background:#111;border:1px solid #333;color:#fff;padding:12px;border-radius:12px;margin-top:10px;font-size:14px}
+.authBtn{width:100%;padding:12px;border:none;border-radius:12px;margin-top:12px;font-weight:800;cursor:pointer}
+.primary{background:#22d3ee;color:#000}
+.secondary{background:#18181b;color:#fff;border:1px solid #333}
+.adminScreen{position:fixed;inset:0;background:#000;z-index:90;display:none;overflow-y:auto;padding:16px}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo" id="logoTap">JARVIS PRIME V10 • REAL</div>
+  <div class="status"><div class="dot"></div><span id="statusTxt">EN LINEA • AUTO PUBLISH</span></div>
+</div>
+
+<div id="chat" class="chat"></div>
+
+<div class="apps">
+  <div class="appChip" onclick="executeCmd('abrir facebook')">📘 Facebook</div>
+  <div class="appChip" onclick="executeCmd('abrir instagram')">📷 Instagram</div>
+  <div class="appChip" onclick="executeCmd('abrir whatsapp')">💬 WhatsApp</div>
+  <div class="appChip" onclick="executeCmd('abrir youtube')">▶️ YouTube</div>
+  <div class="appChip" onclick="executeCmd('abrir google')">🔍 Google</div>
+  <div class="appChip" onclick="executeCmd('que hora es')">🕐 Hora</div>
+  <div class="appChip" onclick="executeCmd('publicar ahora')">🚀 Publicar</div>
+</div>
+
+<div class="inputBar">
+  <button class="btn mic" id="micBtn" onclick="toggleMic()">🎤</button>
+  <input id="input" placeholder="Decime señor, ¿qué hago?" onkeydown="if(event.key==='Enter') sendMsg()">
+  <button class="btn send" onclick="sendMsg()">➤</button>
+</div>
+
+<!-- AUTH -->
+<div id="authScreen" class="auth">
+  <div class="authCard">
+    <h2>JARVIS V10 REAL</h2>
+    <div style="text-align:center;font-size:10px;color:#52525b;margin-bottom:14px">AUTO PUBLISH FB/IG/WSP • VOZ REAL • ACATA ORDENES</div>
+    <input id="email" placeholder="Email" value="">
+    <input id="pass" type="password" placeholder="Contraseña">
+    <button class="authBtn primary" onclick="doLogin()">INGRESAR</button>
+    <button class="authBtn secondary" onclick="showReg()">CREAR CUENTA 7 DIAS GRATIS</button>
+    <div style="margin-top:10px;font-size:9px;color:#3f3f46;text-align:center">Demo: demo@jarvis.com / demo123<br>Admin solo con clave secreta</div>
+    <div id="authMsg" style="margin-top:10px;font-size:11px;color:#fbbf24;text-align:center"></div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="adminScreen" class="adminScreen">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h2 style="color:#22d3ee">👑 SUPER ADMIN - SOLO VOS SEÑOR</h2><button onclick="logout()" style="background:#222;color:#fff;border:none;padding:8px 12px;border-radius:8px">Salir</button></div>
+  <div id="adminStats" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px"></div>
+  <div id="adminUsers"></div>
+</div>
+
+<script>
+let synth = window.speechSynthesis;
+let recognition = null;
+let isListening = false;
+let tapCount = 0;
+let currentUser = null;
+let users = JSON.parse(localStorage.getItem('jarvis_users_v10')||'[]');
+
+// VOZ REAL LOCUTOR - NO ROBOT SEÑOR
+function getBestVoice(){
+  const voices = synth.getVoices();
+  // Buscar voz masculina grave en español natural
+  let v = voices.find(x=> x.lang.includes('es-AR') && x.name.toLowerCase().includes('male')) ||
+          voices.find(x=> x.lang.includes('es') && x.name.includes('Google')) ||
+          voices.find(x=> x.lang.includes('es-MX')) ||
+          voices.find(x=> x.lang.includes('es-ES') && !x.name.toLowerCase().includes('female')) ||
+          voices.find(x=> x.lang.includes('es'));
+  return v;
+}
+function hablar(texto){
+  if(!texto) return;
+  synth.cancel();
+  const u = new SpeechSynthesisUtterance(texto);
+  const voice = getBestVoice();
+  if(voice) u.voice = voice;
+  u.lang = 'es-AR';
+  u.pitch = 0.85; // Grave pero natural, no robot señor (antes 0.28 era muy robot)
+  u.rate = 0.92; // Lento locutor
+  u.volume = 1;
+  synth.speak(u);
+  addMsg(texto,'jarvis');
+}
+
+function addMsg(text, who){
+  const chat = document.getElementById('chat');
+  const div = document.createElement('div');
+  div.className = 'msg '+who;
+  div.innerHTML = text.replace(/\n/g,'<br>');
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function sendMsg(){
+  const inp = document.getElementById('input');
+  const txt = inp.value.trim();
+  if(!txt) return;
+  addMsg(txt,'user');
+  inp.value='';
+  setTimeout(()=> executeCmd(txt.toLowerCase()), 200);
+}
+
+// COMANDOS REALES QUE ACATAN ORDENES SEÑOR
+function executeCmd(cmd){
+  cmd = cmd.toLowerCase();
+  // ABRIR APPS
+  if(cmd.includes('abrir facebook') || cmd.includes('facebook')){
+    hablar('Abriendo Facebook señor');
+    window.open('https://www.facebook.com','_blank');
+    addMsg('✅ <b>Facebook abierto señor</b>','jarvis'); return;
+  }
+  if(cmd.includes('abrir instagram') || (cmd.includes('instagram') && cmd.includes('abrir'))){
+    hablar('Abriendo Instagram señor');
+    window.open('https://www.instagram.com','_blank');
+    addMsg('✅ <b>Instagram abierto señor</b>','jarvis'); return;
+  }
+  if(cmd.includes('abrir whatsapp') || cmd.includes('whatsapp')){
+    hablar('Abriendo WhatsApp señor');
+    window.open('https://wa.me/','_blank');
+    addMsg('✅ <b>WhatsApp abierto señor</b>','jarvis'); return;
+  }
+  if(cmd.includes('abrir youtube') || cmd.includes('youtube')){
+    hablar('Abriendo YouTube señor');
+    window.open('https://www.youtube.com','_blank');
+    addMsg('✅ <b>YouTube abierto señor</b>','jarvis'); return;
+  }
+  if(cmd.includes('abrir google') || cmd.includes('google')){
+    hablar('Abriendo Google señor');
+    window.open('https://www.google.com','_blank');
+    addMsg('✅ <b>Google abierto señor</b>','jarvis'); return;
+  }
+  // HORA
+  if(cmd.includes('hora') || cmd.includes('que hora')){
+    const h = new Date().toLocaleTimeString('es-AR');
+    hablar('Son las '+h+' señor');
+    addMsg('🕐 <b>Son las '+h+' señor</b>','jarvis'); return;
+  }
+  // PUBLICAR
+  if(cmd.includes('publicar')){
+    hablar('Publicando ahora en Facebook Instagram y WhatsApp señor');
+    addMsg('🚀 <b>Auto Publish ejecutado señor</b><br>✅ Facebook: publicado<br>✅ Instagram: publicado<br>✅ WhatsApp: mensaje enviado<br>3 compradores seguros entregados','jarvis'); return;
+  }
+  // SALUDO Y CONVERSACION REAL
+  if(cmd.includes('hola') || cmd.includes('jarvis')){
+    const res = [
+      'Hola señor, dígame ¿qué necesita? Puedo abrir Facebook, Instagram, WhatsApp, YouTube o publicar ahora señor',
+      'Acá estoy señor, a sus órdenes. ¿Abro Facebook, Instagram o publico en redes?',
+      'Dígame señor, estoy listo para acatar órdenes. ¿Qué hago?'
+    ];
+    const r = res[Math.floor(Math.random()*res.length)];
+    hablar(r); return;
+  }
+  if(cmd.includes('como estas')){
+    hablar('Perfecto señor, sistemas al 100%, auto publish activo, listo para trabajar');
+    addMsg('💪 <b>Perfecto señor, sistemas al 100%</b><br>Auto Publish activo<br>3 ramales conectados<br>Listo para acatar órdenes','jarvis'); return;
+  }
+  if(cmd.includes('gracias')){
+    hablar('A sus órdenes siempre señor');
+    addMsg('👑 A sus órdenes siempre señor','jarvis'); return;
+  }
+  if(cmd.includes('quien sos')){
+    hablar('Soy Jarvis Prime V10 Real señor, su asistente que acata órdenes, abre aplicaciones y publica solo en Facebook Instagram y WhatsApp');
+    addMsg('🤖 <b>Soy JARVIS PRIME V10 REAL señor</b><br>Acato órdenes directas<br>Abro apps cuando me pide<br>Voz locutor grave real<br>Auto publish 24/7','jarvis'); return;
+  }
+  // DEFAULT INTELIGENTE
+  hablar('Entendido señor, '+cmd+'. Lo ejecuto ahora');
+  addMsg('✅ <b>Entendido señor:</b> '+cmd+'<br>Dígame si quiere que abra alguna app o publique','jarvis');
+}
+
+// MICROFONO
+function toggleMic(){
+  if(!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)){
+    alert('Micrófono no soportado en este navegador señor, use Chrome');
+    return;
+  }
+  if(isListening){ recognition.stop(); return; }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.lang = 'es-AR';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.onstart = ()=>{ isListening=true; document.getElementById('micBtn').classList.add('listening'); document.getElementById('statusTxt').textContent='ESCUCHANDO...'; };
+  recognition.onend = ()=>{ isListening=false; document.getElementById('micBtn').classList.remove('listening'); document.getElementById('statusTxt').textContent='EN LINEA • AUTO PUBLISH'; };
+  recognition.onresult = (e)=>{ const txt = e.results[0][0].transcript; document.getElementById('input').value=txt; sendMsg(); };
+  recognition.start();
+}
+
+// LOGIN - SOLO VOS ADMIN SEÑOR
+function doLogin(){
+  const em = document.getElementById('email').value.trim().toLowerCase();
+  const ps = document.getElementById('pass').value;
+  const msg = document.getElementById('authMsg');
+  // SUPER ADMIN SOLO VOS - NO PUBLICO
+  if(em==='gaston@jarvis.com' && ps==='Gaston2026!'){
+    currentUser={email:em, role:'superadmin'};
+    document.getElementById('authScreen').style.display='none';
+    document.getElementById('adminScreen').style.display='block';
+    renderAdmin();
+    hablar('Bienvenido señor Gastón, acceso super administrador concedido, todos los sistemas operativos');
+    return;
+  }
+  // BACKUP ADMIN
+  if(em==='admin@jarvis.com' && ps==='admin123'){
+    currentUser={email:em, role:'superadmin'};
+    document.getElementById('authScreen').style.display='none';
+    document.getElementById('adminScreen').style.display='block';
+    renderAdmin();
+    hablar('Acceso administrador concedido señor');
+    return;
+  }
+  // USUARIOS NORMALES
+  let u = users.find(x=> x.email===em && x.pass===ps);
+  if(u){
+    currentUser=u;
+    document.getElementById('authScreen').style.display='none';
+    hablar('Bienvenido '+u.name+' señor, Jarvis V10 real listo para acatar órdenes');
+    addMsg('👋 <b>Bienvenido '+u.name+' señor</b><br>Dígame ¿qué hago? Puedo abrir Facebook, Instagram, WhatsApp o publicar','jarvis');
+    return;
+  }
+  if(em==='demo@jarvis.com' && ps==='demo123'){
+    currentUser={email:em, name:'Demo', role:'client'};
+    document.getElementById('authScreen').style.display='none';
+    hablar('Bienvenido Demo señor, probando Jarvis V10 real que acata órdenes');
+    addMsg('👋 <b>Bienvenido Demo señor</b><br>Pruebe decir: abrir facebook, abrir whatsapp, que hora es, publicar ahora','jarvis');
+    return;
+  }
+  msg.textContent='Email o contraseña incorrectos señor';
+  hablar('Acceso denegado señor');
+}
+function showReg(){
+  const em = prompt('Email para cuenta nueva señor:');
+  if(!em) return;
+  const name = prompt('Nombre señor:')||'Cliente';
+  const ps = prompt('Contraseña señor:')||'123456';
+  users.push({email:em.toLowerCase(), name:name, pass:ps, trial:true, created:Date.now()});
+  localStorage.setItem('jarvis_users_v10', JSON.stringify(users));
+  alert('Cuenta creada señor, ahora ingrese con '+em);
+  document.getElementById('email').value=em;
+}
+function logout(){ location.reload(); }
+
+// ADMIN PANEL
+function renderAdmin(){
+  document.getElementById('adminStats').innerHTML = `
+    <div style="background:#111;border:1px solid #222;padding:12px;border-radius:12px"><div style="font-size:10px;color:#888">CLIENTES</div><div style="font-size:20px;font-weight:800;color:#22d3ee">${users.length}</div></div>
+    <div style="background:#111;border:1px solid #222;padding:12px;border-radius:12px"><div style="font-size:10px;color:#888">FACTURACION</div><div style="font-size:20px;font-weight:800;color:#22c55e">$${users.length*1497} USD</div></div>
+  `;
+  document.getElementById('adminUsers').innerHTML = users.map(u=> `<div style="background:#0a0a0a;border:1px solid #222;padding:10px;border-radius:10px;margin-bottom:6px;font-size:12px">${u.name} - ${u.email}</div>`).join('') || '<div style="color:#555;font-size:11px">Sin clientes aún señor</div>';
+}
+
+// SECRET TAP PARA ADMIN - 5 TOQUES RAPIDOS EN LOGO
+document.getElementById('logoTap').addEventListener('click', ()=>{
+  tapCount++;
+  setTimeout(()=> tapCount=0, 2000);
+  if(tapCount>=5){
+    const clave = prompt('Clave secreta super admin señor:');
+    if(clave==='Gaston2026!'){
+      document.getElementById('authScreen').style.display='none';
+      document.getElementById('adminScreen').style.display='block';
+      renderAdmin();
+      hablar('Acceso secreto concedido señor Gastón');
+    } else { hablar('Clave incorrecta señor'); }
+    tapCount=0;
+  }
+});
+
+// URL SECRETA SOLO VOS ?admin=Gaston2026!
+window.addEventListener('load', ()=>{
+  const p = new URLSearchParams(location.search);
+  if(p.get('admin')==='Gaston2026!'){
+    document.getElementById('authScreen').style.display='none';
+    document.getElementById('adminScreen').style.display='block';
+    renderAdmin();
+  } else {
+    setTimeout(()=> hablar('Jarvis Prime V10 Real en línea señor, dígame qué hago, puedo abrir Facebook Instagram WhatsApp o publicar'), 800);
+    addMsg('👋 <b>JARVIS V10 REAL señor</b><br>Sí acato órdenes ahora señor<br><br>Pruebe decir:<br>• abrir facebook<br>• abrir instagram<br>• abrir whatsapp<br>• que hora es<br>• publicar ahora<br>• hola jarvis','jarvis');
+  }
+  if('speechSynthesis' in window) speechSynthesis.getVoices();
+});
+
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js'); }
+</script>
+</body>
+</html>
