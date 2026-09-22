@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JARVIS PRIME V6 - Sistema de Venta con Registro</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#06b6d4">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;color:#e4e4e7;font-family:system-ui,sans-serif;min-height:100vh}
+.auth-bg{background:radial-gradient(ellipse at top, rgba(6,182,212,.15), transparent 60%), radial-gradient(ellipse at bottom, rgba(168,85,247,.1), transparent 60%), #000;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{background:rgba(24,24,27,.9);border:1px solid rgba(6,182,212,.2);border-radius:20px;padding:28px;width:100%;max-width:420px;box-shadow:0 0 40px rgba(6,182,212,.15)}
+.input{width:100%;background:#111;border:1px solid rgba(6,182,212,.2);color:#fff;padding:14px 16px;border-radius:12px;margin-top:10px;outline:none;font-size:14px}
+.input:focus{border-color:#06b6d4;box-shadow:0 0 0 3px rgba(6,182,212,.15)}
+.btn{width:100%;border:none;background:#06b6d4;color:#000;padding:14px;border-radius:12px;font-weight:800;letter-spacing:.05em;cursor:pointer;margin-top:14px;font-size:14px}
+.btn-ghost{background:transparent;border:1px solid rgba(6,182,212,.3);color:#22d3ee}
+.btn-ultra{background:linear-gradient(135deg,#06b6d4,#a855f7);color:#000}
+.header{border-bottom:1px solid rgba(6,182,212,.15);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,.9)}
+.chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;background:radial-gradient(ellipse at top, rgba(6,182,212,.05), transparent 60%)}
+.msg{max-width:85%;padding:12px 14px;border-radius:16px;font-size:14px;line-height:1.5}
+.user{align-self:flex-end;background:#06b6d4;color:#000;border-radius:16px 16px 4px 16px}
+.jarvis{align-self:flex-start;background:rgba(24,24,27,.9);border:1px solid rgba(6,182,212,.2);color:#bae6fd;border-radius:4px 16px 16px 16px}
+.app{display:none;flex-direction:column;height:100vh}
+.auth{display:flex}
+.badge{font-size:10px;padding:4px 8px;border-radius:999px;background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.2)}
+.link{color:#22d3ee;cursor:pointer;text-decoration:underline;font-size:13px}
+.small{font-size:11px;color:#71717a;margin-top:8px}
+.divider{display:flex;align-items:center;gap:12px;margin:16px 0;color:#52525b;font-size:11px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.08)}
+</style>
+</head>
+<body>
+
+<!-- PANTALLA AUTH - REGISTRO Y LOGIN -->
+<div id="authScreen" class="auth-bg">
+  <div class="card">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="width:70px;height:70px;border-radius:50%;border:2px solid #06b6d4;margin:0 auto;display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(6,182,212,.4) inset;color:#22d3ee;font-size:10px;letter-spacing:.15em">JARVIS</div>
+      <h1 style="margin-top:12px;font-size:20px;letter-spacing:.1em;color:#fff">JARVIS PRIME V6</h1>
+      <div style="font-size:11px;color:#22d3ee;letter-spacing:.2em">SISTEMA DE VENTA • VOZ LOCUTOR GRAVE</div>
+      <div style="margin-top:8px"><span class="badge">✓ Registro directo desde la app</span></div>
+    </div>
+
+    <!-- TABS -->
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <button id="tabLogin" class="btn" style="flex:1;margin:0;font-size:12px" onclick="showLogin()">INGRESAR</button>
+      <button id="tabReg" class="btn btn-ghost" style="flex:1;margin:0;font-size:12px" onclick="showReg()">CREAR CUENTA</button>
+    </div>
+
+    <!-- FORM LOGIN -->
+    <div id="formLogin">
+      <input id="loginEmail" class="input" type="email" placeholder="Email corporativo">
+      <input id="loginPass" class="input" type="password" placeholder="Contraseña">
+      <button class="btn btn-ultra" onclick="login()">▶ INGRESAR A JARVIS - VOZ GRAVE</button>
+      <div class="small" style="text-align:center;margin-top:12px">
+        ¿Olvidaste contraseña? <span class="link" onclick="alert('Sí señor, funcion para recuperar con Firebase. Por ahora use registro nuevo señor.')">Recuperar</span><br>
+        Demo rápida: use <b>demo@jarvis.com / demo123</b> señor
+      </div>
+    </div>
+
+    <!-- FORM REGISTRO -->
+    <div id="formReg" style="display:none">
+      <input id="regNombre" class="input" placeholder="Nombre y Apellido *">
+      <input id="regEmpresa" class="input" placeholder="Empresa / Operadora (Ej: YPF, Vista) *">
+      <input id="regEmail" class="input" type="email" placeholder="Email corporativo *">
+      <input id="regTel" class="input" placeholder="WhatsApp (Ej: +54 299...) *">
+      <input id="regPass" class="input" type="password" placeholder="Crear contraseña *">
+      <input id="regPass2" class="input" type="password" placeholder="Repetir contraseña *">
+      <div style="display:flex;gap:8px;margin-top:10px;align-items:flex-start">
+        <input type="checkbox" id="terms" style="margin-top:3px">
+        <label for="terms" style="font-size:11px;color:#a1a1aa">Acepto términos y que me contacten por WhatsApp para activar mi licencia JARVIS señor</label>
+      </div>
+      <button class="btn btn-ultra" onclick="register()">🚀 CREAR CUENTA Y ACTIVAR JARVIS</button>
+      <div class="small" style="text-align:center">Se guarda directo en la app señor. Cada cliente queda registrado para que usted pueda venderle señor.</div>
+    </div>
+
+    <div class="divider">VENTA DIRECTA DESDE LA APP</div>
+    <div style="font-size:11px;color:#a1a1aa;line-height:1.5">
+      <b style="color:#22d3ee">Modelo de negocio señor:</b><br>
+      • Cliente se registra solo desde la app<br>
+      • Usted ve todos los registros en panel admin<br>
+      • Activa licencia por 30 días / 90 días / anual<br>
+      • Cobra por MercadoPago / Transferencia<br>
+      • JARVIS queda bloqueado hasta que pague señor
+    </div>
+
+    <div style="margin-top:16px;padding:12px;background:rgba(6,182,212,.06);border:1px solid rgba(6,182,212,.15);border-radius:12px">
+      <div style="font-size:11px;color:#22d3ee;font-weight:700">📊 PANEL ADMIN (solo usted señor):</div>
+      <div style="font-size:11px;color:#a1a1aa;margin-top:4px">Email: admin@jarvis.com / Pass: admin123 para ver todos los registrados señor</div>
+      <button class="btn btn-ghost" style="font-size:11px;padding:8px;margin-top:8px" onclick="loginAdmin()">VER PANEL ADMIN DE CLIENTES</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP JARVIS - DESPUES DE LOGIN -->
+<div id="appScreen" class="app">
+  <div class="header">
+    <div style="display:flex;gap:12px;align-items:center">
+      <div style="width:36px;height:36px;border-radius:50%;border:2px solid #06b6d4;display:flex;align-items:center;justify-content:center;font-size:9px;color:#22d3ee">ARC</div>
+      <div>
+        <div style="font-size:12px;letter-spacing:.15em;color:#22d3ee;font-weight:700">JARVIS V6 • <span id="userNameHeader">GASTON</span></div>
+        <div style="font-size:10px;color:#10b981"><span id="status">ACTIVO</span> • LOCUTOR ULTRA GRAVE • <span id="licencia">LICENCIA ACTIVA</span></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button onclick="logout()" style="background:#18181b;border:1px solid #333;color:#888;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer">SALIR</button>
+      <button id="btnActivar" style="background:#06b6d4;color:#000;border:none;padding:8px 14px;border-radius:999px;font-size:11px;font-weight:700;cursor:pointer">ACTIVAR VOZ GRAVE</button>
+    </div>
+  </div>
+
+  <div id="chat" class="chat">
+    <div class="msg jarvis"><b>JARVIS:</b> Sí señor <span class="userNameSpan">Gastón</span>. Bienvenido a JARVIS PRIME V6 sistema de venta señor. Voz de locutor ultra grave activada señor. Su cuenta está registrada y activa señor. ¿En qué lo ayudo hoy con DIA y Vaca Muerta señor?</div>
+  </div>
+  <div style="display:flex;gap:8px;padding:10px 16px;border-top:1px solid rgba(255,255,255,.06)">
+    <button onclick="mic()" id="micBtn" style="border:1px solid rgba(6,182,212,.3);background:#18181b;color:#22d3ee;width:48px;height:48px;border-radius:50%;cursor:pointer">🎤</button>
+    <input id="input" placeholder="Hable con JARVIS..." style="flex:1;background:#111;border:1px solid rgba(6,182,212,.2);color:#fff;padding:14px;border-radius:999px;outline:none">
+    <button onclick="send()" style="border:none;background:#06b6d4;color:#000;width:48px;height:48px;border-radius:50%;cursor:pointer">➤</button>
+  </div>
+</div>
+
+<!-- PANEL ADMIN -->
+<div id="adminScreen" style="display:none;min-height:100vh;background:#000;padding:20px">
+  <div style="max-width:900px;margin:0 auto">
+    <h2 style="color:#22d3ee">📊 PANEL ADMIN JARVIS - CLIENTES REGISTRADOS SEÑOR</h2>
+    <div style="margin-top:12px;display:flex;gap:8px">
+      <button onclick="exportCSV()" style="background:#06b6d4;color:#000;border:none;padding:8px 14px;border-radius:8px;font-size:12px;cursor:pointer">📥 Exportar CSV para vender</button>
+      <button onclick="clearUsers()" style="background:#18181b;border:1px solid #333;color:#888;padding:8px 14px;border-radius:8px;font-size:12px">Borrar demo</button>
+      <button onclick="showAuth()" style="background:#18181b;border:1px solid #333;color:#22d3ee;padding:8px 14px;border-radius:8px;font-size:12px">← Volver a App</button>
+    </div>
+    <div id="usersTable" style="margin-top:16px;background:rgba(24,24,27,.9);border:1px solid rgba(6,182,212,.15);border-radius:12px;padding:16px;overflow:auto"></div>
+  </div>
+</div>
+
+<script>
+// SISTEMA DE REGISTRO LOCAL + LISTO PARA FIREBASE SEÑOR
+let synth=window.speechSynthesis, voices=[], recognition=null, isMuted=false, currentUser=null;
+function loadVoices(){ voices=synth.getVoices(); } loadVoices(); if(synth) synth.onvoiceschanged=loadVoices;
+function speak(text){
+  if(!synth) return; isMuted=true; if(recognition) try{recognition.stop();}catch(e){} synth.cancel();
+  const u=new SpeechSynthesisUtterance(text.replace(/<[^>]*>/g,''));
+  let v=voices.find(x=>x.name.toLowerCase().includes('jorge')||x.name.toLowerCase().includes('diego'))||voices.find(x=>x.lang==='es-AR')||voices[0];
+  if(v) u.voice=v; u.lang='es-AR'; u.pitch=0.28; u.rate=0.72; u.volume=1;
+  u.onend=()=>{ isMuted=false; }; synth.speak(u);
+}
+function getUsers(){ return JSON.parse(localStorage.getItem('jarvis_users')||'[]'); }
+function saveUsers(arr){ localStorage.setItem('jarvis_users', JSON.stringify(arr)); }
+function showLogin(){ document.getElementById('formLogin').style.display='block'; document.getElementById('formReg').style.display='none'; document.getElementById('tabLogin').className='btn'; document.getElementById('tabReg').className='btn btn-ghost'; }
+function showReg(){ document.getElementById('formLogin').style.display='none'; document.getElementById('formReg').style.display='block'; document.getElementById('tabLogin').className='btn btn-ghost'; document.getElementById('tabReg').className='btn'; }
+function showAuth(){ document.getElementById('authScreen').style.display='flex'; document.getElementById('appScreen').style.display='none'; document.getElementById('adminScreen').style.display='none'; }
+function showApp(){ document.getElementById('authScreen').style.display='none'; document.getElementById('appScreen').style.display='flex'; document.getElementById('adminScreen').style.display='none'; }
+function showAdmin(){ document.getElementById('authScreen').style.display='none'; document.getElementById('appScreen').style.display='none'; document.getElementById('adminScreen').style.display='block'; renderUsers(); }
+
+function register(){
+  const nombre=document.getElementById('regNombre').value.trim();
+  const empresa=document.getElementById('regEmpresa').value.trim();
+  const email=document.getElementById('regEmail').value.trim().toLowerCase();
+  const tel=document.getElementById('regTel').value.trim();
+  const p1=document.getElementById('regPass').value;
+  const p2=document.getElementById('regPass2').value;
+  const terms=document.getElementById('terms').checked;
+  if(!nombre||!empresa||!email||!tel||!p1){ alert('Complete todos los campos señor'); return; }
+  if(p1!==p2){ alert('Contraseñas no coinciden señor'); return; }
+  if(!terms){ alert('Acepte términos señor'); return; }
+  let users=getUsers();
+  if(users.find(u=>u.email===email)){ alert('Email ya registrado señor. Ingrese señor.'); showLogin(); return; }
+  const newUser={id:Date.now(), nombre, empresa, email, tel, pass:p1, fecha:new Date().toLocaleString('es-AR'), licencia:'ACTIVA 30 DIAS', estado:'NUEVO - CONTACTAR PARA COBRO'};
+  users.push(newUser); saveUsers(users);
+  currentUser=newUser; localStorage.setItem('jarvis_current', JSON.stringify(newUser));
+  // Para Firebase futuro: firebase.auth().createUserWithEmailAndPassword(email,p1) y firestore collection users
+  document.getElementById('userNameHeader').textContent=nombre.split(' ')[0].toUpperCase();
+  document.querySelectorAll('.userNameSpan').forEach(el=>el.textContent=nombre.split(' ')[0]);
+  showApp();
+  setTimeout(()=>{ speak(`Sí señor ${nombre.split(' ')[0]}. Cuenta creada y registrada señor. Licencia activa por treinta días señor. Bienvenido a JARVIS Prime versión seis con voz de locutor ultra grave señor. ¿En qué lo ayudo hoy?`); }, 600);
+}
+
+function login(){
+  const email=document.getElementById('loginEmail').value.trim().toLowerCase();
+  const pass=document.getElementById('loginPass').value;
+  if(email==='demo@jarvis.com' && pass==='demo123'){
+    currentUser={nombre:'Demo Gastón', empresa:'DIA Vaca Muerta', email, licencia:'DEMO ACTIVA'}; showApp(); speak('Sí señor Gastón. Demo activada señor. Voz de locutor ultra grave lista señor.'); return;
+  }
+  if(email==='admin@jarvis.com' && pass==='admin123'){ loginAdmin(); return; }
+  let users=getUsers(); let u=users.find(x=>x.email===email && x.pass===pass);
+  if(!u){ alert('Email o contraseña incorrectos señor. Si no tiene cuenta, cree una señor.'); return; }
+  currentUser=u; localStorage.setItem('jarvis_current', JSON.stringify(u));
+  document.getElementById('userNameHeader').textContent=u.nombre.split(' ')[0].toUpperCase();
+  showApp(); speak(`Sí señor ${u.nombre.split(' ')[0]}. Bienvenido de nuevo señor. Licencia ${u.licencia} señor.`);
+}
+function loginAdmin(){ showAdmin(); }
+function logout(){ localStorage.removeItem('jarvis_current'); currentUser=null; showAuth(); }
+function renderUsers(){
+  let users=getUsers();
+  if(users.length===0){ document.getElementById('usersTable').innerHTML='<div style="color:#71717a">Aún no hay registrados señor. Cuando clientes se registren desde la app, aparecen acá señor para que usted les cobre señor.</div>'; return; }
+  let html='<table style="width:100%;font-size:12px;border-collapse:collapse"><tr style="color:#22d3ee;text-align:left;border-bottom:1px solid #333"><th>Fecha</th><th>Nombre</th><th>Empresa</th><th>Email</th><th>WhatsApp</th><th>Licencia</th><th>Estado</th></tr>';
+  users.forEach(u=>{ html+=`<tr style="border-bottom:1px solid #222"><td>${u.fecha}</td><td><b>${u.nombre}</b></td><td>${u.empresa}</td><td>${u.email}</td><td><a href="https://wa.me/${u.tel.replace(/[^0-9]/g,'')}" target="_blank" style="color:#22d3ee">${u.tel}</a></td><td>${u.licencia}</td><td><span style="background:rgba(251,146,60,.15);color:#fb923c;padding:3px 6px;border-radius:6px">${u.estado}</span></td></tr>`; });
+  html+='</table><div style="margin-top:12px;font-size:11px;color:#71717a">Total registrados: '+users.length+' - Cada uno se registró solo desde la app señor. Usted les escribe por WhatsApp y les cobra por MercadoPago señor.</div>';
+  document.getElementById('usersTable').innerHTML=html;
+}
+function exportCSV(){
+  let users=getUsers(); if(users.length===0){ alert('No hay datos señor'); return; }
+  let csv='Fecha,Nombre,Empresa,Email,WhatsApp,Licencia,Estado\n';
+  users.forEach(u=>{ csv+=`"${u.fecha}","${u.nombre}","${u.empresa}","${u.email}","${u.tel}","${u.licencia}","${u.estado}"\n`; });
+  let blob=new Blob([csv],{type:'text/csv'}); let url=URL.createObjectURL(blob); let a=document.createElement('a'); a.href=url; a.download='JARVIS_CLIENTES_REGISTRADOS.csv'; a.click();
+}
+function clearUsers(){ if(confirm('¿Borrar todos los registros demo señor?')){ localStorage.removeItem('jarvis_users'); renderUsers(); } }
+
+// CHAT JARVIS REAL CONVERSACIONAL VOZ GRAVE
+function addMsg(t,who){ const div=document.createElement('div'); div.className='msg '+who; div.innerHTML=who==='jarvis'?'<b>JARVIS:</b> '+t:t; document.getElementById('chat').appendChild(div); document.getElementById('chat').scrollTop=99999; }
+function getResp(txt){
+  const t=txt.toLowerCase();
+  if(t.includes('youtube')){ let tema=t.replace(/.*youtube de/i,'').replace(/.*youtube/i,'').trim()||'vaca muerta'; setTimeout(()=>window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(tema)}`,'_blank'),500); return `Sí señor. Buscando en YouTube sobre <b>${tema}</b> señor. Abriendo resultados señor.`; }
+  if(t.includes('whatsapp')){ setTimeout(()=>window.open('https://web.whatsapp.com','_blank'),500); return 'Abriendo WhatsApp señor.'; }
+  if(t.includes('estado')||t.includes('dia')) return 'Sí señor. DIA con 34 prospectos activos, 18 oportunidades, 5 calientes en YPF y Vista señor. ¿Profundizo en alguno señor?';
+  if(t.includes('precio')||t.includes('cuanto cuesta')||t.includes('licencia')) return 'Sí señor. Licencia JARVIS PRIME V6 señor:<br>• Mensual: 25.000 ARS<br>• Trimestral: 60.000 ARS<br>• Anual: 200.000 ARS<br>Incluye voz locutor ultra grave, registro de clientes y soporte señor. ¿Le activo el cobro por MercadoPago señor?';
+  return `Sí señor ${currentUser?currentUser.nombre.split(' ')[0]:'Gastón'}. Entendido señor: <i>"${txt}"</i><br><br>Procesando con voz de locutor ultra grave señor. ¿Quiere que busque en YouTube, abra WhatsApp o analicemos DIA señor?`;
+}
+function send(){
+  const inp=document.getElementById('input'); const txt=inp.value.trim(); if(!txt) return;
+  addMsg(txt,'user'); inp.value='';
+  setTimeout(()=>{ const r=getResp(txt); addMsg(r,'jarvis'); speak(r); }, 600);
+}
+function mic(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition; if(!SR) return;
+  const rec=new SR(); rec.lang='es-AR'; rec.onresult=e=>{ document.getElementById('input').value=e.results[0][0].transcript; send(); }; rec.start();
+}
+document.getElementById('input').addEventListener('keypress',e=>{ if(e.key==='Enter') send(); });
+document.getElementById('btnActivar').onclick=function(){
+  if(this.textContent.includes('ACTIVAR')){ this.textContent='🟢 LOCUTOR GRAVE ACTIVO'; this.style.background='#10b981'; speak('Sí señor Gastón. JARVIS versión seis con voz de locutor ultra grave activado señor. Sistema de registro de clientes activo señor. Listo para vender señor.'); }
+};
+
+// Auto login si hay sesion
+let saved=localStorage.getItem('jarvis_current'); if(saved){ try{ currentUser=JSON.parse(saved); document.getElementById('userNameHeader').textContent=currentUser.nombre.split(' ')[0].toUpperCase(); showApp(); }catch(e){} }
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('/sw.js').catch(()=>{}); }
+</script>
+</body>
+</html>
